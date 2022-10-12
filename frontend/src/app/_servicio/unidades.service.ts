@@ -1,0 +1,57 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
+import { Unidades } from '../_modelo/unidades';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class UnidadesService {
+
+  ruta = `${environment.RUTA}/api/v1/unidades`;
+
+  constructor(private _httpClient: HttpClient) { }
+
+  buscarPorTermino(termino: string, pagina: number, cantidad: number): Observable<Unidades[]> {
+    return this._httpClient.get<Unidades[]>(`${this.ruta}/?pagina=${pagina}&cantidad=${cantidad}&termino=${termino}`);
+  }
+
+  cantidadBuscarPorTermino(termino: string): Observable<number> {
+    return this._httpClient.get<number>(`${this.ruta}/cantidad?termino=${termino}`);
+  }
+
+  buscarTodos(): Observable<Unidades[]> {
+    return this._httpClient.get<Unidades[]>(`${this.ruta}/todos`);
+  }
+
+  buscarPorId(id: number): Observable<Unidades>{
+    return this._httpClient.get<Unidades>(`${this.ruta}/${id}`);
+  }
+
+  adicionar(dato: Unidades): Observable<any>{
+    return this._httpClient.post<any>(`${this.ruta}`, dato);
+  }
+
+  modificar(dato: Unidades): Observable<any>{
+    return this._httpClient.put<any>(`${this.ruta}`, dato);
+  }
+
+  borrar(id: number): Observable<any>{
+    return this._httpClient.delete<any>(`${this.ruta}/${id}`);
+  }
+
+  generaPDF() {
+    return this._httpClient.get(`${this.ruta}/generaPDF/`, {
+      responseType: "blob",
+    });
+  }
+
+  generaXLS() {
+    return this._httpClient.get(`${this.ruta}/generaXLS/`, {
+      responseType: "blob",
+    });
+  }
+
+
+}

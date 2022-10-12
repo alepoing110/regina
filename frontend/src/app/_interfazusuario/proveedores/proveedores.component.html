@@ -1,0 +1,188 @@
+<div class="app-title">
+    <div>
+        <h1><i class="fa fa-{{ icono }}"></i> {{ titulo }}</h1>
+        <p>{{ descripcion }}</p>
+    </div>
+    <ul class="app-breadcrumb breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="#" (click)="finicio()"><i class="fa fa-home fa-lg"></i> Inicio</a>
+        </li>
+        <li class="breadcrumb-item">{{ opcion }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="tile">
+
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <div class="input-group justify-content-end">
+                        <div class="input-group-prepend">
+                            <button class="btn btn-primary mr-2" type="button" (click)="fadicionar(ab)"><i class="fa fa-plus"></i> Adicionar </button>
+                            <div class="dropdown">
+                                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-bars"></i> Opciones</button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <button class="dropdown-item" (click)="fgeneraPDF()"><i class="fa fa-file-pdf-o"></i> Genera PDF</button>
+                                    <button class="dropdown-item" (click)="fgeneraXLS()"><i class="fa fa-file-excel-o"></i> Genera Excel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" class="form-control mr-2" #buscar placeholder="Ingrese proveedor a buscar..." (keyup.enter)="fbuscar(buscar.value)"/>
+                        <span class="input-group-prepend">
+                            <button class="btn btn-primary mr-2" (click)="fbuscar(buscar.value)">
+                                <i class="fa fa-search"></i> Buscar
+                            </button>
+                            <button class="btn btn-dark" (click)="limpiar()" (click)="buscar.value=''">
+                                <i class="fa fa-list"></i> Limpiar
+                            </button>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-6 mt-1" *ngIf="total > cantidad">
+                    <ngb-pagination class="d-flex justify-content-end align-items-baseline pagination-rounded" [collectionSize]="total" [(page)]="pagina" [maxSize]="10" [rotate]="false" [ellipses]="false" [pageSize]="cantidad" [boundaryLinks]="true" (pageChange)="mostrarMas($event)" size="sm"></ngb-pagination>
+                </div>
+            </div>
+
+            <div class="table-responsive" *ngIf="datos?.length">
+                <p class="text-right" *ngIf="total==1">Total: <b>{{total}} registro</b>&nbsp;
+                    <select #cantidad (change)="fcambiarcantidad(cantidad.value)">
+                        <option [value]="5">5</option>
+                        <option [value]="10">10</option>
+                        <option [value]="20">20</option>
+                        <option [value]="30">50</option>
+                        <option [value]="100">100</option>
+                    </select>
+                </p>
+                <p class="text-right" *ngIf="total>1">Total: <b>{{total}} registros</b>&nbsp;
+                    <select #cantidad (change)="fcambiarcantidad(cantidad.value)">
+                        <option [value]="5">5</option>
+                        <option [value]="10">10</option>
+                        <option [value]="20">20</option>
+                        <option [value]="30">50</option>
+                        <option [value]="100">100</option>
+                    </select>
+                </p>
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr class="table-primary">
+                            <th class="text-center">Nro.</th>
+                            <th class="text-center">Proveedor</th>
+                            <th class="text-center">NIT</th>
+                            <th class="text-center">Direccion</th>
+                            <th class="text-center">Telefono</th>
+                            <th class="text-center">Celular</th>
+                            <th class="text-center">Correo</th>
+                            <th class="text-center">Operaciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let _item of datos; let i = index ">
+                            <td class="text-center">{{i+1}}</td>
+                            <td class="text-left">{{ _item.proveedor}}</td>
+                            <td class="text-left">{{ _item.nit}}</td>
+                            <td class="text-left">{{ _item.direccion}}</td>
+                            <td class="text-left">{{ _item.telefono}}</td>
+                            <td class="text-left">{{ _item.celular}}</td>
+                            <td class="text-left">{{ _item.correo}}</td>
+                            <td class="text-center">
+                                <button class="btn btn-success btn-sm mr-2 mb-2" (click)="fmodificar(_item.idproveedor, ab)"><i class="fa fa-edit"></i> Editar</button>
+                                <button class="btn btn-danger btn-sm mr-2 mb-2" (click)="feliminar(_item.idproveedor)"><i class="fa fa-trash"></i> Borrar</button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="total > cantidad">
+                            <td colspan="7">
+                                <ngb-pagination class="d-flex justify-content-center pagination-rounded" [collectionSize]="total" [(page)]="pagina" [maxSize]="10" [rotate]="false" [ellipses]="false" [pageSize]="cantidad" [boundaryLinks]="true" (pageChange)="mostrarMas($event)"></ngb-pagination>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-responsive" *ngIf="!datos?.length">
+                <h1 class="text-center"><b>Sin datos</b></h1>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<ng-template #ab>
+    <div class="modal-header">
+        <h4 class="modal-title pull-left"><i class="fa fa-edit"></i> {{ estado }} {{entidad}}</h4>
+    </div>
+
+    <div class="modal-body">
+        <p class="text-info">Estimado usuario Los campos remarcados con * (Asterisco) son necesarios.</p>
+        <form [formGroup]="formulario" (ngSubmit)="faceptar()">
+
+            <div class="form-row">
+
+                <div class="form-group col-md-6">
+                    <label>Proveedor <span class="text-danger"><b>*</b></span></label>
+                    <input type="text" class="form-control" formControlName="proveedor" [class.is-invalid]="f.proveedor.errors && f.proveedor.touched"/>
+                    <small *ngIf="f.proveedor.errors && f.proveedor.touched" class="text-danger">
+                        El dato es obligatorio
+                    </small>
+                </div>
+                <div class="form-group col-md-6">
+                    <label>NIT <span class="text-danger"><b>*</b></span></label>
+                    <input type="text" class="form-control" formControlName="nit" [class.is-invalid]="f.nit.errors && f.nit.touched"/>
+                    <small *ngIf="f.nit.errors && f.nit.touched" class="text-danger">
+                        El dato es obligatorio
+                    </small>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Dirección <span class="text-danger"><b>*</b></span></label>
+                <input type="text" class="form-control" formControlName="direccion" [class.is-invalid]="f.direccion.errors && f.direccion.touched"/>
+                <small *ngIf="f.direccion.errors && f.direccion.touched" class="text-danger">
+                    El dato es obligatorio
+                </small>
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group col-md-4">
+                    <label>Telefono <span class="text-danger"><b>*</b></span></label>
+                    <input type="text" class="form-control" formControlName="telefono" [class.is-invalid]="f.telefono.errors && f.telefono.touched"/>
+                    <small *ngIf="f.telefono.errors && f.telefono.touched" class="text-danger">
+                        El dato es obligatorio
+                    </small>
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label>Celular <span class="text-danger"><b>*</b></span></label>
+                    <input type="text" class="form-control" formControlName="celular" [class.is-invalid]="f.celular.errors && f.celular.touched"/>
+                    <small *ngIf="f.celular.errors && f.celular.touched" class="text-danger">
+                        El dato es obligatorio
+                    </small>
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label>Correo <span class="text-danger"><b>*</b></span></label>
+                    <input type="text" class="form-control" formControlName="correo" [class.is-invalid]="f.correo.errors && f.correo.touched"/>
+                    <small *ngIf="f.correo.errors && f.correo.touched" class="text-danger">
+                        El dato es obligatorio
+                    </small>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-success m-2" [disabled]="!formulario.valid">
+                <i class="fa fa-save"></i> Grabar
+            </button>
+                <button type="button" class="btn btn-danger" (click)="fcancelar()">
+                <i class="fa fa-times"></i> Cancelar
+            </button>
+            </div>
+        </form>
+    </div>
+</ng-template>

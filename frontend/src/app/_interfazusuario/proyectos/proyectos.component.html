@@ -1,0 +1,184 @@
+<div class="app-title">
+    <div>
+        <h1><i class="fa fa-{{ icono }}"></i> {{ titulo }}</h1>
+        <p>{{ descripcion }}</p>
+    </div>
+    <ul class="app-breadcrumb breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="#" (click)="finicio()"><i class="fa fa-home fa-lg"></i> Inicio</a>
+        </li>
+        <li class="breadcrumb-item">{{ opcion }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="tile">
+
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <div class="input-group justify-content-end">
+                        <div class="input-group-prepend">
+                            <button class="btn btn-primary mr-2" type="button" (click)="fadicionar(ab)"><i class="fa fa-plus"></i> Adicionar </button>
+                            <div class="dropdown">
+                                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-bars"></i> Opciones</button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <button class="dropdown-item" (click)="fgeneraPDF()"><i class="fa fa-file-pdf-o"></i> Genera PDF</button>
+                                    <button class="dropdown-item" (click)="fgeneraXLS()"><i class="fa fa-file-excel-o"></i> Genera Excel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" class="form-control mr-2" #buscar placeholder="Ingrese proyecto a buscar..." (keyup.enter)="fbuscar(buscar.value)"/>
+                        <span class="input-group-prepend">
+                            <button class="btn btn-primary mr-2" (click)="fbuscar(buscar.value)">
+                                <i class="fa fa-search"></i> Buscar
+                            </button>
+                            <button class="btn btn-dark" (click)="limpiar()" (click)="buscar.value=''">
+                                <i class="fa fa-list"></i> Limpiar
+                            </button>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-6 mt-1" *ngIf="total > cantidad">
+                    <ngb-pagination class="d-flex justify-content-end align-items-baseline pagination-rounded" [collectionSize]="total" [(page)]="pagina" [maxSize]="10" [rotate]="false" [ellipses]="false" [pageSize]="cantidad" [boundaryLinks]="true" (pageChange)="mostrarMas($event)" size="sm"></ngb-pagination>
+                </div>
+            </div>
+
+            <div class="table-responsive" *ngIf="datos?.length">
+                <p class="text-right" *ngIf="total==1">Total: <b>{{total}} registro</b>&nbsp;
+                    <select #cantidad (change)="fcambiarcantidad(cantidad.value)">
+                        <option [value]="5">5</option>
+                        <option [value]="10">10</option>
+                        <option [value]="20">20</option>
+                        <option [value]="30">50</option>
+                        <option [value]="100">100</option>
+                    </select>
+                </p>
+                <p class="text-right" *ngIf="total>1">Total: <b>{{total}} registros</b>&nbsp;
+                    <select #cantidad (change)="fcambiarcantidad(cantidad.value)">
+                        <option [value]="5">5</option>
+                        <option [value]="10">10</option>
+                        <option [value]="20">20</option>
+                        <option [value]="30">50</option>
+                        <option [value]="100">100</option>
+                    </select>
+                </p>
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr class="table-primary">
+                            <th class="text-center">Nro.</th>
+                            <th class="text-center">Proyecto</th>
+                            <th class="text-center">Detalle</th>
+                            <th class="text-center">Costo total Bs.</th>
+                            <th class="text-center">Costo total $us.</th>
+                            <th class="text-center">Costo ejecutado</th>
+                            <th class="text-center">Operaciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let _item of datos; let i = index ">
+                            <td class="text-center">{{i+1}}</td>
+                            <td class="text-left">{{ _item.proyecto}}</td>
+                            <td class="text-left">{{ _item.detalle}}</td>
+                            <td class="text-right">{{ _item.costototal | number : '1.2-2'}}</td>
+                            <td class="text-right">{{ _item.costototal/6.96 | number : '1.2-2'}}</td>
+                            <td class="text-right">{{ _item.costoejecutado | number : '1.2-2'}}</td>
+                            <td class="text-center">
+                                <button class="btn btn-success btn-sm mr-2 mb-2" (click)="fmodificar(_item.idproyecto, ab)"><i class="fa fa-edit"></i> Editar</button>
+                                <button class="btn btn-danger btn-sm mr-2 mb-2" (click)="feliminar(_item.idproyecto)"><i class="fa fa-trash"></i> Borrar</button>
+                                <button class="btn btn-info btn-sm mr-2 mb-2" (click)="factividades(_item.idproyecto)"><i class="fa fa-edit"></i> Actividades</button>
+                                <button class="btn btn-info btn-sm mr-2 mb-2" (click)="farchivosdigitales(_item.idproyecto)"><i class="fa fa-edit"></i> Archivos Digitales</button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="total > cantidad">
+                            <td colspan="7">
+                                <ngb-pagination class="d-flex justify-content-center pagination-rounded" [collectionSize]="total" [(page)]="pagina" [maxSize]="10" [rotate]="false" [ellipses]="false" [pageSize]="cantidad" [boundaryLinks]="true" (pageChange)="mostrarMas($event)"></ngb-pagination>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-responsive" *ngIf="!datos?.length">
+                <h1 class="text-center"><b>Sin datos</b></h1>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<ng-template #ab>
+    <div class="modal-header">
+        <h4 class="modal-title pull-left"><i class="fa fa-edit"></i> {{ estado }} {{entidad}}</h4>
+    </div>
+
+    <div class="modal-body">
+        <p class="text-info">Estimado usuario Los campos remarcados con * (Asterisco) son necesarios.</p>
+        <form [formGroup]="formulario" (ngSubmit)="faceptar()">
+
+
+            <div class="form-group">
+                <label>proyecto <span class="text-danger"><b>*</b></span></label>
+                <input type="text" class="form-control" formControlName="proyecto" [class.is-invalid]="f.proyecto.errors && f.proyecto.touched"/>
+                <small *ngIf="f.proyecto.errors && f.proyecto.touched" class="text-danger">
+                    El dato es obligatorio
+                </small>
+            </div>
+            <div class="form-group">
+                <label>Institución <span class="text-danger"><b>*</b></span></label>
+                <select class="form-control" formControlName="idinstitucion" [class.is-invalid]="f.idinstitucion.errors && f.idinstitucion.touched">
+                    <option *ngIf="estado === 'Nuevo'">Seleccionar nuevo dato</option>
+                    <option *ngFor="let _itemp of datos_instituciones" [value]="_itemp.idinstitucion">{{_itemp.institucion}}</option>
+                </select>
+
+                <small *ngIf="f.idinstitucion.errors && f.idinstitucion.touched" class="text-danger">
+                    El dato es obligatorio
+                </small>
+            </div>
+
+
+            <div class="form-group">
+                <label>Detalle <span class="text-danger"><b>*</b></span></label>
+                <input type="text" class="form-control" formControlName="detalle" [class.is-invalid]="f.detalle.errors && f.detalle.touched"/>
+                <small *ngIf="f.detalle.errors && f.detalle.touched" class="text-danger">
+                    El dato es obligatorio
+                </small>
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group col-md-6">
+                    <label>Costo del Proyecto <span class="text-danger"><b>*</b></span></label>
+                    <input type="text" class="form-control" formControlName="costototal" [class.is-invalid]="f.costototal.errors && f.costototal.touched" [attr.disabled]="estado=='Modificar' ? '' : null"/>
+                    <small *ngIf="f.costototal.errors && f.costototal.touched" class="text-danger">
+                        El dato es obligatorio
+                    </small>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label>Costo ejecutado <span class="text-danger"><b>*</b></span></label>
+                    <input type="text" class="form-control" formControlName="costoejecutado" [class.is-invalid]="f.costoejecutado.errors && f.costoejecutado.touched" disabled/>
+                    <small *ngIf="f.costoejecutado.errors && f.costoejecutado.touched" class="text-danger">
+                        El dato es obligatorio
+                    </small>
+                </div>
+
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-success m-2" [disabled]="!formulario.valid">
+                <i class="fa fa-save"></i> Grabar
+            </button>
+                <button type="button" class="btn btn-danger" (click)="fcancelar()">
+                <i class="fa fa-times"></i> Cancelar
+            </button>
+            </div>
+        </form>
+    </div>
+</ng-template>
